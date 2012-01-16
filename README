@@ -1,0 +1,43 @@
+As I was unable to establish contact with the author of https://gitorious.org/altut-i-python/pyyrlib, I created a copy here.
+
+Copy of original README:
+
+
+
+About
+-----
+
+This library provides a simple api for accessing weather data from the Norwegian web site yr.no. At the time being, it is extremely simple.
+
+Example
+-------
+
+Import the module:
+
+    >>> import pyyrlib
+
+Search for location:
+
+    >>> pyyrlib.get_location_url('location-name')
+    http://url-to-yr.no/xml-data-for-location-name.xml
+
+Get weather data for the found location:
+
+    >>> pyyrlib.returnWeatherData('url-to-yr/location.xml')
+    { weatherdata as dictionary }
+
+Simple command line usage:
+
+    bash: pyyrlib.py 'url-ty-yr/location.xml'
+    [ acceptably formatted weatherdata in clean text ]
+
+Known issues
+------------
+
+- Fragmented and sketchy
+
+Todo
+----
+
+- Develop into a real python library
+- Connect the search function and stedsnavn.txt
