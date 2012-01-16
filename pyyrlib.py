@@ -9,7 +9,7 @@ PyYrLib is a simple python library for using Yr.no’s weather data API.
 You are welcome to participate in this project!
 """
 
-__version__ = '0.1a'
+__version__ = '0.1b'
 __url__ = 'http://http://gitorious.org/altut-i-python/pyyrlib'
 __license__ = 'BSD License'
 __docformat__ = 'markdown'
