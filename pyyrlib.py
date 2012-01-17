@@ -9,7 +9,7 @@ PyYrLib is a simple python library for using Yr.no’s weather data API.
 You are welcome to participate in this project!
 """
 
-__version__ = '0.1b'
+__version__ = '0.1c'
 __url__ = 'http://http://gitorious.org/altut-i-python/pyyrlib'
 __license__ = 'BSD License'
 __docformat__ = 'markdown'
@@ -19,15 +19,21 @@ import urllib, urllib2
 import xml.dom.minidom
 import traceback
 
-def get_location_url(location=False):
+def get_location_url(location=False, hourly = True):
 	""" This function returns the yr.no url of the weather data at a specific location.
 		Only postal code search implemeted.
 	"""
         print "Location:",location
-	if location.isdigit():
-		return "http://www.yr.no/sted/Norge/postnummer/" + location + "0458/varsel.xml"
+	if location and location.isdigit():
+		if hourly:
+			return "http://www.yr.no/sted/Norge/postnummer/" + location + "/forecast_hour_by_hour.xml"
+		else:
+			return "http://www.yr.no/sted/Norge/postnummer/" + location + "/varsel.xml"
 	else:
-		return "http://www.yr.no/sted/Norge/Vest-Agder/Kristiansand/Kristiansand/varsel.xml"
+		if hourly:
+			return "http://www.yr.no/sted/Norge/Vest-Agder/Kristiansand/Kristiansand/forecast_hour_by_hour.xml"
+		else:
+			return "http://www.yr.no/sted/Norge/Vest-Agder/Kristiansand/Kristiansand/varsel.xml"
 
 def download_and_parse(url):
 	""" Download the xml file
@@ -234,7 +240,7 @@ def printWeatherData(weatherdata):
 	print '%s\n' % (weatherdata['text'][0]['description'])
 	
 	# Loops through the first three tabular info to print some numbers
-	for item in weatherdata['tabular'][:9]:
+	for item in weatherdata['tabular'][:]:
 		# Format precipitation if there are any
 		if item['precipitation'] != '0.0':
 			precipitation = '(%s mm nedbor) ' % (item['precipitation'])
@@ -250,6 +256,7 @@ def printWeatherData(weatherdata):
 										item['temperature'],
 										precipitation,
 										windSpeed)
+#		print item
 		# If this is the last period in a 24 hour period, add some whitespace
 		if item['period'] == '3':
 			print
@@ -304,9 +311,9 @@ def getAndPrint(location):
 
 if __name__ == "__main__":
 	# Test if location is provided
-	if sys.argv[1:] == []:
+	if sys.argv[1] == []:
 		location = None
 	else:
-		location == sys.argv[1]
+		location = sys.argv[1]
 	# Run simple print function
 	sys.exit(getAndPrint(location))
