@@ -1,5 +1,12 @@
 As I was unable to establish contact with the author of https://gitorious.org/altut-i-python/pyyrlib, I created a copy here.
 
+TODO
+----
+
+* Caching; yr.no wants 10 min caching of data.
+* Nice errors on wrong URLs (like post codes which doesn't exist.
+
+
 Copy of original README:
 
 
