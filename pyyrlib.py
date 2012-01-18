@@ -19,7 +19,7 @@ import urllib, urllib2
 import xml.dom.minidom
 import traceback
 
-def get_location_url(location=False, hourly = True):
+def get_location_url(location=False, hourly = False):
 	""" This function returns the yr.no url of the weather data at a specific location.
 		Only postal code search implemeted.
 	"""
@@ -264,12 +264,12 @@ def printWeatherData(weatherdata):
 	# A little whitespace
 	print
 
-def returnWeatherData(location):
+def returnWeatherData(location, hourly = False):
 	""" Function that combines getting, parsing and interpreting data
 	"""
 	# Try to get location url
 	try:
-		locationurl = get_location_url(location)
+		locationurl = get_location_url(location, hourly)
 	except:
 		print "Error in retreiving a location url:"
 		traceback.print_exc()
