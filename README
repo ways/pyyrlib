@@ -1,10 +1,14 @@
 As I was unable to establish contact with the author of https://gitorious.org/altut-i-python/pyyrlib, I created a copy here.
 
+The file verda.txt is from http://om.yr.no/verdata/xml/.
+
+
 TODO
 ----
 
 * Caching; yr.no wants 10 min caching of data.
 * Nice errors on wrong URLs (like post codes which doesn't exist.
+* Searching for places all around the world using verda.txt
 
 
 Copy of original README:
