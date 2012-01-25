@@ -7,8 +7,8 @@ TODO
 ----
 
 * Caching; yr.no wants 10 min caching of data.
-* Nice errors on wrong URLs (like post codes which doesn't exist.
 * Searching for places all around the world using verda.txt
+* US zip codes?
 
 
 Copy of original README:
