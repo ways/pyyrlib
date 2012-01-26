@@ -3,40 +3,80 @@
 
 '''
 Put verda2.txt in mysql db
+
+TODO:
+* Clean up character sets
 '''
 
-import string, MySQLdb
+import string, MySQLdb, sys
 
-def get_mysql_handle ():
-  db=MySQLdb.connect(host = "localhost",
+def get_db_cursor ():
+  conn=MySQLdb.connect(host = "localhost",
                            user = "pyyrlib",
                            passwd = "ifoo3aeshahN",
                            db = "pyyrlib")
-  c = conn.cursor ()
-  c.execute ("SELECT VERSION()")
-  row = c.fetchone ()
-  print row
-  return
-  c.execute("""SELECT spam, eggs, sausage FROM breakfast
-          WHERE price < %s""", (max_price,))
-  c.fetchone()
-  c.executemany(
-      """INSERT INTO breakfast (name, spam, eggs, sausage, price)
-      VALUES (%s, %s, %s, %s, %s)""",
-      [
-      ("Spam and Sausage Lover's Plate", 5, 1, 8, 7.95 ),
-      ("Not So Much Spam Plate", 3, 2, 0, 3.95 ),
-      ("Don't Wany ANY SPAM! Plate", 0, 4, 3, 5.95 )
-      ] )
+  return conn, conn.cursor ()
 
-def process_file ():
-  fd = open( "verda2.txt" )
+
+def clear_db (cursor, table):
+  query = "delete from " + table
+  cursor.execute(query)
+
+
+def insert_row_countries (cursor, table, fields):
+  query = "INSERT INTO " + table + " (countrycode, countryname) VALUES ( "
+  
+  for i in range(0, 2):
+    if 0 != i:
+      query += ", "
+    query += "'" + fields[i].strip() + "'"
+
+  query += " ) ON DUPLICATE KEY UPDATE countryname = '" + fields[1] + "' ;"
+
+  print query
+  return cursor.execute(query)
+
+
+def insert_row_verda (cursor, conn, table, fields):
+  query = "INSERT INTO " + table + " (countryid, placename, xml) VALUES ( "
+  
+  for i in [0, 1, 3]:
+    if 0 != i:
+      query += ", "
+    if 0 == i:
+      query += " (select countryid from countries where countrycode = '" + fields[0] + "' ) "
+    elif 2 == i:
+      continue
+    else:
+      query += "'" + conn.escape_string(fields[i].strip()) + "'"
+
+  query += " ) ;"
+
+  print query
+  return cursor.execute(query)
+
+
+def process_file_countries (cursor):
+  fd = open( "countries.txt" )
   content = fd.readline()
   while (content != "" ):
     fields = string.split(content, ',')
-    print fields
-    break
+    insert_row_countries(cursor, 'countries', fields)
+    content = fd.readline()
 
 
-get_mysql_handle ()
-process_file ()
+def process_file_verda (cursor, conn):
+  fd = open( "verda2.txt" )
+  content = fd.readline() #header
+  content = fd.readline()
+  while (content != "" ):
+    fields = string.split(content, ',')
+    insert_row_verda(cursor, conn, 'verda', fields)
+    content = fd.readline()
+
+
+conn, c = get_db_cursor ()
+clear_db (c, 'countries')
+process_file_countries (c)
+clear_db (c, 'verda')
+process_file_verda(c, conn)

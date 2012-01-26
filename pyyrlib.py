@@ -9,7 +9,7 @@ PyYrLib is a simple python library for using Yr.no’s weather data API.
 You are welcome to participate in this project!
 """
 
-__version__ = '0.1c'
+__version__ = '0.2a'
 __url__ = 'http://http://gitorious.org/altut-i-python/pyyrlib'
 __license__ = 'BSD License'
 __docformat__ = 'markdown'
@@ -18,21 +18,28 @@ import os, sys
 import urllib, urllib2
 import xml.dom.minidom
 import traceback
+import MySQLdb
+
 
 def get_location_url(location=False, hourly = False):
   """ This function returns the yr.no url of the weather data at a specific location.
     Only postal code search implemeted.
   """
-  if location and location.isdigit():
-    if hourly:
-      return "http://www.yr.no/sted/Norge/postnummer/" + location + "/forecast_hour_by_hour.xml"
-    else:
-      return "http://www.yr.no/sted/Norge/postnummer/" + location + "/varsel.xml"
+
+  if not location:
+    return false
+
+  filename = "/varsel.xml"
+  if hourly:
+    filename = "/forecast_hour_by_hour.xml"
+
+  if location.isdigit():
+      return "http://www.yr.no/sted/Norge/postnummer/" + location + filename
   else:
-    if hourly:
-      return "http://www.yr.no/sted/Norge/Vest-Agder/Kristiansand/Kristiansand/forecast_hour_by_hour.xml"
-    else:
-      return "http://www.yr.no/sted/Norge/Vest-Agder/Kristiansand/Kristiansand/varsel.xml"
+      conn, cursor = get_db_cursor ()
+      result = get_url_by_name (cursor, location)
+      print result
+      return result
 
 def download_and_parse(url):
   """ Download the xml file
@@ -311,6 +318,23 @@ def getAndPrint(location):
     traceback.print_exc()
     sys.exit(1)
   return 0
+
+def get_db_cursor ():
+  conn=MySQLdb.connect(host = "localhost",
+                           user = "pyyrlib",
+                           passwd = "ifoo3aeshahN",
+                           db = "pyyrlib")
+  return conn, conn.cursor ()
+
+
+def get_url_by_name (cursor, name):
+  query = "SELECT xml FROM verda WHERE placename LIKE('%" + name + "%') LIMIT 1;"
+  if 0 < cursor.execute(query):
+    row = cursor.fetchone ()
+    return row[0]
+  else:
+    return False
+
 
 if __name__ == "__main__":
   # Test if location is provided
