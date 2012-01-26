@@ -7,8 +7,10 @@ TODO
 ----
 
 * Caching; yr.no wants 10 min caching of data.
-* Searching for places all around the world using verda.txt
 * US zip codes?
+* Norwegian city names?
+* Input cleaning.
+* Look for better weather sources for not norway?
 
 
 Copy of original README:
