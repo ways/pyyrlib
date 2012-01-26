@@ -23,7 +23,7 @@ import MySQLdb
 
 def get_location_url(location=False, hourly = False):
   """ This function returns the yr.no url of the weather data at a specific location.
-    Only postal code search implemeted.
+      Postal code is easy, name search has to connect to db.
   """
 
   if not location:
@@ -37,7 +37,7 @@ def get_location_url(location=False, hourly = False):
       return "http://www.yr.no/sted/Norge/postnummer/" + location + filename
   else:
       conn, cursor = get_db_cursor ()
-      result = get_url_by_name (cursor, location)
+      result = get_xmlurl_by_name (cursor, location)
       print result
       return result
 
@@ -155,33 +155,37 @@ def interpret(xmlobj):
   forecastnode = weatherdatanode.getElementsByTagName("forecast")[0]
   
   # Get the textnode and its child node 'location'
-  textnode = forecastnode.getElementsByTagName("text")[0]
-  locationnode = textnode.getElementsByTagName("location")[0]
+  try:
+    textnode = forecastnode.getElementsByTagName("text")[0]
+    locationnode = textnode.getElementsByTagName("location")[0]
   
-  # Get the location name
-  weatherdata['location'] = locationnode.attributes['name'].nodeValue
+    # Get the location name
+    weatherdata['location'] = locationnode.attributes['name'].nodeValue
   
-  # Loop through the time nodes in the text section
-  for node in locationnode.getElementsByTagName("time"):
+    # Loop through the time nodes in the text section
+    for node in locationnode.getElementsByTagName("time"):
     
-    # Initialize the minidict
-    nodedict = {}
+      # Initialize the minidict
+      nodedict = {}
     
-    # Get the attributes (from and to dates)
-    nodedict['from'] = node.attributes['from'].nodeValue
-    nodedict['to'] = node.attributes['to'].nodeValue
+      # Get the attributes (from and to dates)
+      nodedict['from'] = node.attributes['from'].nodeValue
+      nodedict['to'] = node.attributes['to'].nodeValue
     
-    # Get the title and body/description
-    n = node.getElementsByTagName("title")[0]
-    nodedict['title'] = node.getElementsByTagName("title")[0].childNodes[0].nodeValue
-    nodedict['description'] = node.getElementsByTagName("body")[0].childNodes[0].nodeValue
+      # Get the title and body/description
+      n = node.getElementsByTagName("title")[0]
+      nodedict['title'] = node.getElementsByTagName("title")[0].childNodes[0].nodeValue
+      nodedict['description'] = node.getElementsByTagName("body")[0].childNodes[0].nodeValue
     
-    # Remove html markup
-    nodedict['description'] = nodedict['description'].replace('<strong>', '')
-    nodedict['description'] = nodedict['description'].replace('</strong>', '')
+      # Remove html markup
+      nodedict['description'] = nodedict['description'].replace('<strong>', '')
+      nodedict['description'] = nodedict['description'].replace('</strong>', '')
     
-    # Add minidict to the text array in the weatherdata dict
-    weatherdata['text'].append(nodedict)
+      # Add minidict to the text array in the weatherdata dict
+      weatherdata['text'].append(nodedict)
+
+  except IndexError:
+    pass
   
   # Get the tabularnode
   tabularnode = forecastnode.getElementsByTagName("tabular")[0]
@@ -327,8 +331,8 @@ def get_db_cursor ():
   return conn, conn.cursor ()
 
 
-def get_url_by_name (cursor, name):
-  query = "SELECT xml FROM verda WHERE placename LIKE('%" + name + "%') LIMIT 1;"
+def get_xmlurl_by_name (cursor, name):
+  query = "SELECT xml FROM verda WHERE LOWER(placename) LIKE('" + name + "') LIMIT 1;"
   if 0 < cursor.execute(query):
     row = cursor.fetchone ()
     return row[0]
