@@ -48,7 +48,7 @@ def insert_row_verda (cursor, conn, table, fields):
     elif 2 == i:
       continue
     else:
-      query += "'" + conn.escape_string(fields[i].strip()) + "'"
+      query += "'" + conn.escape_string(fields[i].strip().replace(' ', '').lower()) + "'"
 
   query += " ) ;"
 

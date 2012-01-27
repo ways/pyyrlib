@@ -15,7 +15,7 @@ __license__ = 'BSD License'
 __docformat__ = 'markdown'
 
 import os, sys
-import urllib, urllib2
+import urllib, urllib2, urlparse
 import xml.dom.minidom
 import traceback
 import MySQLdb
@@ -27,6 +27,7 @@ def get_location_url(location=False, hourly = False):
   """
 
   if not location:
+    print "get_location_url called without location " + location
     return false
 
   filename = "/varsel.xml"
@@ -34,18 +35,20 @@ def get_location_url(location=False, hourly = False):
     filename = "/forecast_hour_by_hour.xml"
 
   if location.isdigit():
-      return "http://www.yr.no/sted/Norge/postnummer/" + location + filename
+    result = "http://www.yr.no/sted/Norge/postnummer/" + location + filename
   else:
-      conn, cursor = get_db_cursor ()
-      result = get_xmlurl_by_name (cursor, location)
-      print result
-      return result
+    conn, cursor = get_db_cursor ()
+    result = get_xmlurl_by_name (cursor, sanitize_string(location))
+
+  print "Source: " + result
+  return result
 
 def download_and_parse(url):
   """ Download the xml file
   """
   # Download the xml data
-  response = urllib2.urlopen('%s' % (url))
+  response = urllib2.urlopen('%s' % (url_fix(url)))
+
   # Parse the xml data
   xmlobj = xml.dom.minidom.parse(response)
   # Return xml object
@@ -274,6 +277,7 @@ def printWeatherData(weatherdata):
   # A little whitespace
   print
 
+
 def returnWeatherData(location, hourly = False):
   """ Function that combines getting, parsing and interpreting data.
       Returns False on failure.
@@ -282,16 +286,17 @@ def returnWeatherData(location, hourly = False):
   try:
     locationurl = get_location_url(location, hourly)
   except:
-    #print "Error in retreiving a location url:"
+    print "Error in retreiving a location url: " + location
     #traceback.print_exc()
     return False
   
   # Try to download and parse data
   try:
     xmlobj = download_and_parse(locationurl)
-  except:
-    #print "Error in downloading and parsing xml data:"
-    #traceback.print_exc()
+  except Exception as e:
+    print "Error in downloading and parsing xml data: "
+    print e
+    traceback.print_exc()
     return False
   
   # Try to interpret xml object
@@ -304,6 +309,7 @@ def returnWeatherData(location, hourly = False):
   
   # Return weather data
   return weatherdata
+
 
 def getAndPrint(location):
   """ A function that combines the getting and printing of data
@@ -323,6 +329,7 @@ def getAndPrint(location):
     sys.exit(1)
   return 0
 
+
 def get_db_cursor ():
   conn=MySQLdb.connect(host = "localhost",
                            user = "pyyrlib",
@@ -332,12 +339,40 @@ def get_db_cursor ():
 
 
 def get_xmlurl_by_name (cursor, name):
+#  query = "SELECT xml FROM verda WHERE placename LIKE('%s') LIMIT 1;"
   query = "SELECT xml FROM verda WHERE LOWER(placename) LIKE('" + name + "') LIMIT 1;"
   if 0 < cursor.execute(query):
     row = cursor.fetchone ()
     return row[0]
   else:
     return False
+
+
+def sanitize_string (str):
+  if len(str) > 10:
+    str = str[:10]
+  str = str.strip().replace('\\','').replace(';','').replace('*','').replace('&','').replace('=','')
+  return str
+
+
+def url_fix(s, charset='utf-8'):
+    """Sometimes you get an URL by a user that just isn't a real
+    URL because it contains unsafe characters like ' ' and so on.  This
+    function can fix some of the problems in a similar way browsers
+    handle data entered by the user:
+
+    >>> url_fix(u'http://de.wikipedia.org/wiki/Elf (Begriffsklärung)')
+    'http://de.wikipedia.org/wiki/Elf%20%28Begriffskl%C3%A4rung%29'
+
+    :param charset: The target charset for the URL if the url was
+                    given as unicode string.
+    """
+    if isinstance(s, unicode):
+        s = s.encode(charset, 'ignore')
+    scheme, netloc, path, qs, anchor = urlparse.urlsplit(s)
+    path = urllib.quote(path, '/%')
+    qs = urllib.quote_plus(qs, ':&=')
+    return urlparse.urlunsplit((scheme, netloc, path, qs, anchor))
 
 
 if __name__ == "__main__":
