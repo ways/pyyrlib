@@ -9,7 +9,7 @@ PyYrLib is a simple python library for using Yr.no’s weather data API.
 You are welcome to participate in this project!
 """
 
-__version__ = '0.2a'
+__version__ = '0.3'
 __url__ = 'http://http://gitorious.org/altut-i-python/pyyrlib'
 __license__ = 'BSD License'
 __docformat__ = 'markdown'
@@ -22,8 +22,8 @@ import MySQLdb
 
 
 def get_location_url(location=False, hourly = False):
-  """ This function returns the yr.no url of the weather data at a specific location.
-      Postal code is easy, name search has to connect to db.
+  """ This function returns the yr.no url of the weather data at a specific 
+      location. Postal code is easy, but name search has to connect to db.
   """
 
   if not location:
@@ -40,7 +40,8 @@ def get_location_url(location=False, hourly = False):
     conn, cursor = get_db_cursor ()
     result = get_xmlurl_by_name (cursor, sanitize_string(location))
 
-  print "Source: " + result
+  print " returned " \
+    + result.replace('http://www.yr.no/place/','').replace('/forecast.xml','')
   return result
 
 def download_and_parse(url):
@@ -70,7 +71,10 @@ def interpret(xmlobj):
         <location name="Tøyen">
           <time from="2009-11-16" to="2009-11-17">
             <title>mandag og tirsdag</title>
-            <body>&lt;strong&gt;Oslo:&lt;/strong&gt; Skiftende bris, fra i ettermiddag østlig bris. For det meste skyet oppholdsvær. Lokal tåke. Fra natt til tirsdag litt regn av og til. Økende nedbør tirsdag formiddag, men minkende igjen om ettermiddagen.</body>
+            <body>&lt;strong&gt;Oslo:&lt;/strong&gt; Skiftende bris, fra i 
+            ettermiddag østlig bris. For det meste skyet oppholdsvær. Lokal 
+            tåke. Fra natt til tirsdag litt regn av og til. Økende nedbør 
+            tirsdag formiddag, men minkende igjen om ettermiddagen.</body>
           </time>
           <time from="2009-11-18" to="2009-11-18"></time>
               <time from="2009-11-19" to="2009-11-22"></time>
@@ -177,8 +181,10 @@ def interpret(xmlobj):
     
       # Get the title and body/description
       n = node.getElementsByTagName("title")[0]
-      nodedict['title'] = node.getElementsByTagName("title")[0].childNodes[0].nodeValue
-      nodedict['description'] = node.getElementsByTagName("body")[0].childNodes[0].nodeValue
+      nodedict['title'] = \
+        node.getElementsByTagName("title")[0].childNodes[0].nodeValue
+      nodedict['description'] = \
+        node.getElementsByTagName("body")[0].childNodes[0].nodeValue
     
       # Remove html markup
       nodedict['description'] = nodedict['description'].replace('<strong>', '')
@@ -221,7 +227,8 @@ def interpret(xmlobj):
     wdDegrees = getAttribute(windirectionnode, 'degrees')
     wdCode = getAttribute(windirectionnode, 'code')
     wdName = getAttribute(windirectionnode, 'name')
-    nodedict['windDirection'] = {'degrees': wdDegrees, 'code': wdCode, 'name': wdName}
+    nodedict['windDirection'] = \
+      {'degrees': wdDegrees, 'code': wdCode, 'name': wdName}
     
     # Get the wind speed data
     windspeednode = node.getElementsByTagName('windSpeed')[0]
@@ -261,7 +268,8 @@ def printWeatherData(weatherdata):
       precipitation = ''
     # Format windSpeed if it is higher than 5
     if item['windSpeed']['mps'] != '.' or int(item['windSpeed']['mps']) > 5:
-      windSpeed = '(%s (%s mps)) ' % (item['windSpeed']['name'], item['windSpeed']['mps'])
+      windSpeed = '(%s (%s mps)) ' % (item['windSpeed']['name'], \
+        item['windSpeed']['mps'])
     else:
       windSpeed = ''
     # Print the line
@@ -308,7 +316,7 @@ def returnWeatherData(location, hourly = False):
     sys.exit(1)
   
   # Return weather data
-  return weatherdata
+  return weatherdata, locationurl
 
 
 def getAndPrint(location):
@@ -339,8 +347,11 @@ def get_db_cursor ():
 
 
 def get_xmlurl_by_name (cursor, name):
-#  query = "SELECT xml FROM verda WHERE placename LIKE('%s') LIMIT 1;"
-  query = "SELECT xml FROM verda WHERE LOWER(placename) LIKE('" + name + "') LIMIT 1;"
+  query = "SELECT xml " +\
+    "FROM verda " +\
+    "WHERE placename LIKE('" + name + "%') " +\
+    "OR LOWER(xml) LIKE ('%" + name + "%') " +\
+    "ORDER BY placename"
   if 0 < cursor.execute(query):
     row = cursor.fetchone ()
     return row[0]
@@ -351,7 +362,12 @@ def get_xmlurl_by_name (cursor, name):
 def sanitize_string (str):
   if len(str) > 10:
     str = str[:10]
-  str = str.strip().replace('\\','').replace(';','').replace('*','').replace('&','').replace('=','')
+  str = str.strip()\
+    .replace('\\','')\
+    .replace(';','')\
+    .replace('*','')\
+    .replace('&','')\
+    .replace('=','')
   return str
 
 

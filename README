@@ -8,9 +8,17 @@ TODO
 
 * Caching; yr.no wants 10 min caching of data.
 * US zip codes?
-* Norwegian city names?
-* Input cleaning.
-* Look for better weather sources for not norway?
+* Make mysql-dependency optional.
+
+
+Importing data into mysql
+-------------------------
+
+This is to enable world wide search.
+* Create db with pyyrlib.sql
+* Run import.sh
+* Run import2.py
+
 
 
 Copy of original README:

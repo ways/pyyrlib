@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Vert: localhost
--- Generert den: 25. Jan, 2012 16:23 PM
+-- Generert den: 27. Jan, 2012 18:53 PM
 -- Tjenerversjon: 5.1.49
 -- PHP-Versjon: 5.3.3-7+squeeze3
 
@@ -29,13 +29,9 @@ CREATE TABLE IF NOT EXISTS `countries` (
   `countryid` int(11) NOT NULL AUTO_INCREMENT,
   `countrycode` varchar(2) NOT NULL,
   `countryname` varchar(20) NOT NULL,
-  PRIMARY KEY (`countryid`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
---
--- Dataark for tabell `countries`
---
-
+  PRIMARY KEY (`countryid`),
+  UNIQUE KEY `countrycode` (`countrycode`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3506 ;
 
 -- --------------------------------------------------------
 
@@ -47,15 +43,9 @@ CREATE TABLE IF NOT EXISTS `verda` (
   `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
   `countryid` int(11) NOT NULL,
   `placename` varchar(20) NOT NULL,
-  `xml` varchar(100) NOT NULL,
-  PRIMARY KEY (`id`),
+  `xml` varchar(200) NOT NULL,
   UNIQUE KEY `id` (`id`),
   KEY `countryid` (`countryid`),
   KEY `placename_2` (`placename`),
   FULLTEXT KEY `placename` (`placename`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
---
--- Dataark for tabell `verda`
---
-
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=48937 ;
