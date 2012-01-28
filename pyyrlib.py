@@ -48,12 +48,9 @@ def get_location_url(location=False, hourly = False):
 def download_and_parse(url, location):
   """ Download the xml file
   """
-  #cache
-  ofc = pyofc.OfflineFileCache ('/tmp/pyyrlib-cache/', 60, urllib2.urlopen, url_fix(url), True)
+  # Download the xml data, cached
+  ofc = pyofc.OfflineFileCache ('/tmp/pyyrlib-cache/', 600, urlopenread, url_fix(url), False)
   response = ofc.get(location)
-
-  # Download the xml data
-  #response = urllib2.urlopen('%s' % (url_fix(url)))
 
   # Parse the xml data
   xmlobj = xml.dom.minidom.parseString(response)
@@ -394,6 +391,10 @@ def url_fix(s, charset='utf-8'):
     path = urllib.quote(path, '/%')
     qs = urllib.quote_plus(qs, ':&=')
     return urlparse.urlunsplit((scheme, netloc, path, qs, anchor))
+
+
+def urlopenread (url):
+  return urllib2.urlopen(url).read()
 
 
 if __name__ == "__main__":

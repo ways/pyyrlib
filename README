@@ -6,7 +6,6 @@ The file verda.txt is from http://om.yr.no/verdata/xml/.
 TODO
 ----
 
-* Caching; yr.no wants 10 min caching of data.
 * US zip codes?
 * Make mysql-dependency optional.
 
