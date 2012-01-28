@@ -19,6 +19,7 @@ import urllib, urllib2, urlparse
 import xml.dom.minidom
 import traceback
 import MySQLdb
+import pyofc
 
 
 def get_location_url(location=False, hourly = False):
@@ -44,14 +45,18 @@ def get_location_url(location=False, hourly = False):
     + result.replace('http://www.yr.no/place/','').replace('/forecast.xml','')
   return result
 
-def download_and_parse(url):
+def download_and_parse(url, location):
   """ Download the xml file
   """
+  #cache
+  ofc = pyofc.OfflineFileCache ('/tmp/pyyrlib-cache/', 60, urllib2.urlopen, url_fix(url), True)
+  response = ofc.get(location)
+
   # Download the xml data
-  response = urllib2.urlopen('%s' % (url_fix(url)))
+  #response = urllib2.urlopen('%s' % (url_fix(url)))
 
   # Parse the xml data
-  xmlobj = xml.dom.minidom.parse(response)
+  xmlobj = xml.dom.minidom.parseString(response)
   # Return xml object
   return xmlobj
 
@@ -296,16 +301,16 @@ def returnWeatherData(location, hourly = False):
   except:
     print "Error in retreiving a location url: " + location
     #traceback.print_exc()
-    return False
-  
+    return False, ""
+
   # Try to download and parse data
-  try:
-    xmlobj = download_and_parse(locationurl)
-  except Exception as e:
-    print "Error in downloading and parsing xml data: "
-    print e
-    traceback.print_exc()
-    return False
+#  try: 
+  xmlobj = download_and_parse(locationurl, location)
+#  except Exception as e:
+#    print "Error in downloading and parsing xml data: "
+#    print e
+#    traceback.print_exc()
+#    return False, ""
   
   # Try to interpret xml object
   try:
