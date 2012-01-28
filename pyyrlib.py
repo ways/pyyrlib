@@ -41,8 +41,6 @@ def get_location_url(location=False, hourly = False):
     conn, cursor = get_db_cursor ()
     result = get_xmlurl_by_name (cursor, sanitize_string(location))
 
-  print " returned " \
-    + result.replace('http://www.yr.no/place/','').replace('/forecast.xml','')
   return result
 
 def download_and_parse(url, location):
@@ -50,7 +48,16 @@ def download_and_parse(url, location):
   """
   # Download the xml data, cached
   ofc = pyofc.OfflineFileCache ('/tmp/pyyrlib-cache/', 600, urlopenread, url_fix(url), False)
-  response = ofc.get(location)
+  response, fromcache = ofc.get(location)
+
+  print " returned " \
+    + url\
+      .replace('http://www.yr.no/sted/', '')\
+      .replace('http://www.yr.no/place/', '')\
+      .replace('/forecast.xml','')\
+      .replace('/forecast_hour_by_hour.xml','') +\
+    " for keyword " + location +\
+    ", cached: " + str(fromcache)
 
   # Parse the xml data
   xmlobj = xml.dom.minidom.parseString(response)
@@ -295,9 +302,8 @@ def returnWeatherData(location, hourly = False):
   # Try to get location url
   try:
     locationurl = get_location_url(location, hourly)
-  except:
-    print "Error in retreiving a location url: " + location
-    #traceback.print_exc()
+  except MySQLdb.OperationalError as e:
+    print "Error in retreiving a location url (no database available): " + location + str(e)
     return False, ""
 
   # Try to download and parse data
@@ -352,8 +358,11 @@ def get_xmlurl_by_name (cursor, name):
   query = "SELECT xml " +\
     "FROM verda " +\
     "WHERE placename LIKE('" + name + "%') " +\
-    "OR LOWER(xml) LIKE ('%" + name + "%') " +\
-    "ORDER BY placename"
+    "UNION " +\
+    "SELECT xml " +\
+    "FROM verda " +\
+    "WHERE LOWER(xml) LIKE ('%" + name + "%') "
+
   if 0 < cursor.execute(query):
     row = cursor.fetchone ()
     return row[0]
