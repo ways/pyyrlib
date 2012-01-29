@@ -46,7 +46,7 @@ def get_location_url(location=False, hourly = False):
 def download_and_parse(url, location):
   """ Download the xml file
   """
-  print "download_and_parse",url
+  #print "download_and_parse",url
   # Download the xml data, cached
   ofc = pyofc.OfflineFileCache ('/tmp/pyyrlib-cache/', 600, urlopenread, url_fix(url), False)
   response, fromcache = ofc.get(location)
@@ -402,7 +402,7 @@ def url_fix(s, charset='utf-8'):
     :param charset: The target charset for the URL if the url was
                     given as unicode string.
     """
-    print "url_fix", s
+    #print "url_fix", s
     if isinstance(s, unicode):
         s = s.encode(charset, 'ignore')
     scheme, netloc, path, qs, anchor = urlparse.urlsplit(s)
