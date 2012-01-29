@@ -307,12 +307,12 @@ def returnWeatherData(location, hourly = False):
     print "Error in retreiving a location url (no database available): " + location + str(e)
     return False, ""
   except AttributeError as e:
-    return False
+    return False, ""
   except:
      print "Error in retreiving a location url: " + location
 
   if not locationurl:
-    return False
+    return False, ""
 
   # Try to download and parse data
   try: 
