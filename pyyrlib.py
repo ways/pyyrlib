@@ -46,6 +46,7 @@ def get_location_url(location=False, hourly = False):
 def download_and_parse(url, location):
   """ Download the xml file
   """
+  print "download_and_parse",url
   # Download the xml data, cached
   ofc = pyofc.OfflineFileCache ('/tmp/pyyrlib-cache/', 600, urlopenread, url_fix(url), False)
   response, fromcache = ofc.get(location)
@@ -305,15 +306,22 @@ def returnWeatherData(location, hourly = False):
   except MySQLdb.OperationalError as e:
     print "Error in retreiving a location url (no database available): " + location + str(e)
     return False, ""
+  except AttributeError as e:
+    return False
+  except:
+     print "Error in retreiving a location url: " + location
+
+  if not locationurl:
+    return False
 
   # Try to download and parse data
-#  try: 
-  xmlobj = download_and_parse(locationurl, location)
-#  except Exception as e:
-#    print "Error in downloading and parsing xml data: "
-#    print e
+  try: 
+    xmlobj = download_and_parse(locationurl, location)
+  except Exception as e:
+    print "Error in downloading and parsing xml data: "
+    print e
 #    traceback.print_exc()
-#    return False, ""
+    return False, ""
   
   # Try to interpret xml object
   try:
@@ -394,6 +402,7 @@ def url_fix(s, charset='utf-8'):
     :param charset: The target charset for the URL if the url was
                     given as unicode string.
     """
+    print "url_fix", s
     if isinstance(s, unicode):
         s = s.encode(charset, 'ignore')
     scheme, netloc, path, qs, anchor = urlparse.urlsplit(s)
