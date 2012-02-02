@@ -164,9 +164,13 @@ def interpret(xmlobj):
   weatherdatanode = xmlobj.getElementsByTagName("weatherdata")[0]
   
   # Get sun rise and set
-  sun = weatherdatanode.getElementsByTagName("sun")[0]
-  weatherdata['sunrise'] = sun.attributes['rise'].nodeValue
-  weatherdata['sunset'] = sun.attributes['set'].nodeValue
+  try:
+    sun = weatherdatanode.getElementsByTagName("sun")[0]
+    weatherdata['sunrise'] = sun.attributes['rise'].nodeValue
+    weatherdata['sunset'] = sun.attributes['set'].nodeValue
+  except KeyError as e:
+    #The sun somtimes never rise
+    pass
   
   # Get the forecasts
   forecastnode = weatherdatanode.getElementsByTagName("forecast")[0]
