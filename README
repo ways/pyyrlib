@@ -6,7 +6,7 @@ The file verda.txt is from http://om.yr.no/verdata/xml/.
 TODO
 ----
 
-* US zip codes?
+* Norwegian look-up by name.
 * Make mysql-dependency optional.
 
 
