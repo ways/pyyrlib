@@ -41,9 +41,6 @@ def get_location_url(location=False, hourly = False):
     conn, cursor = get_db_cursor ()
     result = get_xmlurl_by_name (cursor, sanitize_string(location))
 
-    #Average international data to appear hour-by-hour
-    average_international (result)
-
   return result
 
 def download_and_parse(url, location):
@@ -421,10 +418,6 @@ def url_fix(s, charset='utf-8'):
 
 def urlopenread (url):
   return urllib2.urlopen(url).read()
-
-def average_international (result):
-  pass
-  #print result
 
 
 if __name__ == "__main__":
