@@ -6,6 +6,7 @@ The file verda.txt is from http://om.yr.no/verdata/xml/.
 TODO
 ----
 
+* Smooth out international data to appear hour-by-hour (optional, of course).
 * Norwegian look-up by name.
 * Make mysql-dependency optional.
 
