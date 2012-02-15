@@ -51,14 +51,15 @@ def download_and_parse(url, location):
   ofc = pyofc.OfflineFileCache ('/tmp/pyyrlib-cache/', 1800, urlopenread, url_fix(url), False)
   response, fromcache = ofc.get(location)
 
-  print " returned " \
-    + url\
-      .replace('http://www.yr.no/sted/', '')\
-      .replace('http://www.yr.no/place/', '')\
-      .replace('/forecast.xml','')\
-      .replace('/forecast_hour_by_hour.xml','') +\
-    " for keyword " + location +\
-    ", cached: " + str(fromcache)
+#  print " returned " \
+#    + url\
+#      .replace('http://www.yr.no/sted/', '')\
+#      .replace('http://www.yr.no/place/', '')\
+#      .replace('/forecast.xml','')\
+#      .replace('/forecast_hour_by_hour.xml','') +\
+#    " for keyword " + location +\
+#    ", cached: " + str(fromcache)
+  location += " cached: " + str(fromcache)
 
   # Parse the xml data
   xmlobj = xml.dom.minidom.parseString(response)
