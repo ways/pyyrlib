@@ -18,7 +18,10 @@ import os, sys
 import urllib, urllib2, urlparse
 import xml.dom.minidom
 import traceback
-import MySQLdb
+try:
+  import MySQLdb
+except:
+  pass
 import pyofc
 
 
