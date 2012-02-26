@@ -20,7 +20,7 @@ import xml.dom.minidom
 import traceback
 try:
   import MySQLdb
-except:
+except ImportError:
   pass
 import pyofc
 
