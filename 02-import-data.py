@@ -5,7 +5,7 @@
 Put verda2.txt in mysql db
 
 TODO:
-* Clean up character sets
+* BUG: Clean up character sets
 '''
 
 import string, MySQLdb, sys
