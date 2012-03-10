@@ -26,7 +26,7 @@ def insert_row_countries (cursor, table, fields):
   for i in range(0, 2):
     if 0 != i:
       query += ", "
-    query += "'" + fields[i].strip().lower() + "'"
+    query += "'" + all_lower(fields[i]) + "'"
 
   query += " ) ON DUPLICATE KEY UPDATE countryname = '" + fields[1] + "' ;"
 
@@ -41,11 +41,11 @@ def insert_row_verda (cursor, conn, table, fields):
     if 0 != i:
       query += ", "
     if 0 == i:
-      query += " (select countryid from countries where countrycode = '" + fields[0].lower() + "' ) "
+      query += " (select countryid from countries where countrycode = '" + all_lower(fields[0]) + "' ) "
     elif 2 == i:
       continue
     else:
-      query += "'" + conn.escape_string(fields[i].strip().replace(' ', '').lower()) + "'"
+      query += "'" + conn.escape_string(all_lower(fields[i].replace(' ', ''))) + "'"
 
   query += " ) ;"
 
@@ -70,6 +70,10 @@ def process_file_verda (cursor, conn):
     fields = string.split(content, ',')
     insert_row_verda(cursor, conn, 'verda', fields)
     content = fd.readline()
+
+
+def all_lower (str):
+  return str.strip().lower().replace('Æ', 'æ').replace('Ø', 'ø').replace('Å', 'å')
 
 
 conn, c = get_db_cursor ()
