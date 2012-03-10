@@ -12,7 +12,7 @@ TODO
 Importing data into mysql
 -------------------------
 
-This is to enable world wide search.
+This is to enable name search (Norway and international).
 * Create db with pyyrlib.sql
 * Run 01-parse-data.sh
 * Run 02-import-data.py
