@@ -3,9 +3,6 @@
 
 '''
 Put verda2.txt in mysql db
-
-TODO:
-* BUG: Clean up character sets
 '''
 
 import string, MySQLdb, sys
@@ -29,7 +26,7 @@ def insert_row_countries (cursor, table, fields):
   for i in range(0, 2):
     if 0 != i:
       query += ", "
-    query += "'" + fields[i].strip() + "'"
+    query += "'" + fields[i].strip().lower() + "'"
 
   query += " ) ON DUPLICATE KEY UPDATE countryname = '" + fields[1] + "' ;"
 
@@ -44,7 +41,7 @@ def insert_row_verda (cursor, conn, table, fields):
     if 0 != i:
       query += ", "
     if 0 == i:
-      query += " (select countryid from countries where countrycode = '" + fields[0] + "' ) "
+      query += " (select countryid from countries where countrycode = '" + fields[0].lower() + "' ) "
     elif 2 == i:
       continue
     else:
