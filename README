@@ -6,8 +6,7 @@ The file verda.txt is from http://om.yr.no/verdata/xml/.
 TODO
 ----
 
-* Switch Norwegian look-up by name to hour-by-hour.
-* Make mysql-dependency optional.
+* FEATURE: Switch Norwegian look-up by name to hour-by-hour.
 
 
 Importing data into mysql
