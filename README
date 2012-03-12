@@ -6,7 +6,7 @@ The file verda.txt is from http://om.yr.no/verdata/xml/.
 TODO
 ----
 
-pass
+Sorting / searching in db has weird priorites. Ex: Wales gives guyana/essequibo_islands-west_demerara/wales, York gives jamaica/manchester/york
 
 
 Importing data into mysql
