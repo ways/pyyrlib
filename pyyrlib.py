@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8; -*-
+# -*- coding: utf-8 -*-
 """
 PyYrLib
 -------
@@ -9,7 +9,7 @@ PyYrLib is a simple python library for using Yr.no’s weather data API.
 You are welcome to participate in this project!
 """
 
-__version__ = '20120220'
+__version__ = '20120316'
 __url__ = 'http://http://gitorious.org/altut-i-python/pyyrlib'
 __license__ = 'BSD License'
 __docformat__ = 'markdown'
