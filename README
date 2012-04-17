@@ -6,7 +6,9 @@ The file verda.txt is from http://om.yr.no/verdata/xml/.
 TODO
 ----
 
-Sorting / searching in db has weird priorites. Ex: Wales gives guyana/essequibo_islands-west_demerara/wales, York gives jamaica/manchester/york
+* Sorting / searching in db has weird priorites. Ex: York gives jamaica/manchester/york. Resolve like this:
+** Any request with several hits; list hits. no weather.
+** Allow/requre user to specify: england/york or europe/york
 
 
 Importing data into mysql
@@ -16,6 +18,9 @@ This is to enable name search (Norway and international).
 * Create db with pyyrlib.sql
 * Run 01-parse-data.sh
 * Run 02-import-data.py
+
+
+
 
 
 

@@ -326,7 +326,8 @@ def returnWeatherData(location, hourly = False):
   try: 
     xmlobj = download_and_parse(locationurl, location)
   except Exception as e:
-    print "Error in downloading and parsing xml data: "
+    print "Error in downloading and parsing xml data, " + str(locationurl) \
+      + ": "
     print e
 #    traceback.print_exc()
     return False, ""
