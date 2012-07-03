@@ -257,6 +257,12 @@ def interpret(xmlobj):
     # Get the other data
     precipitationnode = node.getElementsByTagName('precipitation')[0]
     nodedict['precipitation'] = precipitationnode.attributes['value'].nodeValue
+    #Get max precipitation
+    try:
+      nodedict['precipitationmax'] = precipitationnode.attributes['maxvalue'].nodeValue
+    except KeyError:
+      pass
+
     temperaturenode = node.getElementsByTagName('temperature')[0]
     nodedict['temperature'] = temperaturenode.attributes['value'].nodeValue
     pressurenode = node.getElementsByTagName('pressure')[0]
@@ -326,8 +332,7 @@ def returnWeatherData(location, hourly = False):
   try: 
     xmlobj = download_and_parse(locationurl, location)
   except Exception as e:
-    print "Error in downloading and parsing xml data, " + str(locationurl) \
-      + ": "
+    print "Error in downloading and parsing xml data: "
     print e
 #    traceback.print_exc()
     return False, ""
