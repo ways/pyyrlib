@@ -65,3 +65,8 @@ Todo
 
 - Develop into a real python library
 - Connect the search function and stedsnavn.txt
+- https://github.com/wckd/python-yr look better. Check if it's feasible to migrate to it.
+- Add proper hour-by-hour for foreign locations.
+- Add days to printout so days can easily be distinguished [requested]
+- Add warnings to bottom, i.e. flood warnings.
+- Python3, general clean-up.
