@@ -15,10 +15,10 @@ __license__ = 'BSD License'
 __docformat__ = 'markdown'
 
 import os, sys
-import urllib, urllib2, urlparse
+import requests
+#import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, urllib.parse
 import xml.dom.minidom
 import traceback
-#import MySQLdb
 import mysql.connector # sudo pip install mysql-connector
 import pyofc
 
@@ -31,8 +31,8 @@ def get_location_url(location=False, hourly = False):
 
   if not location:
     if verbose:
-      print "get_location_url called without location " + location
-    return false
+      print("get_location_url called without location " + location)
+    return False
 
   filename = "/varsel.xml"
   if hourly:
@@ -51,7 +51,8 @@ def download_and_parse(url, location):
   """
   #print "download_and_parse",url
   # Download the xml data, cached
-  ofc = pyofc.OfflineFileCache ('/tmp/pyyrlib-cache/', 1800, urlopenread, url_fix(url), False)
+  ofc = pyofc.OfflineFileCache ('/tmp/pyyrlib-cache/', 1800, urlopenread,
+    url_fix(url), False)
   response, fromcache = ofc.get(location)
 
 #  print " returned " \
@@ -64,6 +65,7 @@ def download_and_parse(url, location):
 #    ", cached: " + str(fromcache)
   location += " cached: " + str(fromcache)
 
+  #print (response)
   # Parse the xml data
   xmlobj = xml.dom.minidom.parseString(response)
   # Return xml object
@@ -148,12 +150,13 @@ def interpret(xmlobj):
             ]
     }
   """
+
   # A simplifying function
-  def textInFirstTagWithName(aNode, aName):
-    try:
-      result = aNode.getElementsByTagName(aName)[0].nodeValue
-    except:
-      result = None
+  # def textInFirstTagWithName(aNode, aName):
+  #   try:
+  #     result = aNode.getElementsByTagName(aName)[0].nodeValue
+  #   except:
+  #     result = None
   
   # Initialize variables
   weatherdata = {
@@ -172,8 +175,7 @@ def interpret(xmlobj):
     sun = weatherdatanode.getElementsByTagName("sun")[0]
     weatherdata['sunrise'] = sun.attributes['rise'].nodeValue
     weatherdata['sunset'] = sun.attributes['set'].nodeValue
-  except KeyError as e:
-    #The sun somtimes never rise
+  except KeyError: #The sun somtimes never rise
     pass
   
   # Get the forecasts
@@ -278,10 +280,10 @@ def printWeatherData(weatherdata):
   """ Function that outputs text formatted weather data
   """
   # Print location as title
-  print '\n\033[01;32m%s\033[00m' % (weatherdata['location'])
+  print('\n\033[01;32m%s\033[00m' % (weatherdata['location']))
   
   # Print first text description (for today)
-  print '%s\n' % (weatherdata['text'][0]['description'])
+  print('%s\n' % (weatherdata['text'][0]['description']))
   
   # Loops through the first three tabular info to print some numbers
   for item in weatherdata['tabular'][:]:
@@ -297,17 +299,17 @@ def printWeatherData(weatherdata):
     else:
       windSpeed = ''
     # Print the line
-    print '%s %2.2s grader %s%s' % (item['from'][11:16],
+    print('%s %2.2s grader %s%s' % (item['from'][11:16],
                     item['temperature'],
                     precipitation,
-                    windSpeed)
+                    windSpeed))
 #    print item
     # If this is the last period in a 24 hour period, add some whitespace
     if item['period'] == '3':
-      print
+      print()
   
   # A little whitespace
-  print
+  print()
 
 
 def returnWeatherData(location, hourly = False):
@@ -320,12 +322,14 @@ def returnWeatherData(location, hourly = False):
   try:
     locationurl = get_location_url(location, hourly)
   except mysql.connector.Error as e:
-    print "Error in retreiving a location url (no database available): " + location + str(e)
+    print("Error in retreiving a location url (no database available): " + location + str(e))
     return False, ""
   except AttributeError as e:
+    if verbose:
+      print("returnWeatherData AttributeError %s" % e)
     return False, "%s" % e
   except:
-     print "Error in retreiving a location url: " + location
+     print("returnWeatherData Error in retreiving a location url: " + location)
 
   if not locationurl:
     if verbose:
@@ -333,19 +337,19 @@ def returnWeatherData(location, hourly = False):
     return False, ""
 
   # Try to download and parse data
-  try: 
-    xmlobj = download_and_parse(locationurl, location)
-  except Exception as e:
-    print "Error in downloading and parsing xml data: "
-    print e
+  #try: 
+  xmlobj = download_and_parse(locationurl, location)
+  #except Exception as e:
+  #  print("Error in downloading and parsing xml data: ")
+  #  print(e)
 #    traceback.print_exc()
-    return False, ""
+  #return False, ""
   
   # Try to interpret xml object
   try:
     weatherdata = interpret(xmlobj)
   except:
-    print "Error in interpreting xml data:"
+    print("Error in interpreting xml data:")
     traceback.print_exc()
     sys.exit(1)
   
@@ -368,7 +372,7 @@ def getAndPrint(location):
   try:
     printWeatherData(weatherdata)
   except:
-    print "Error in printing xml data:"
+    print("Error in printing xml data:")
     traceback.print_exc()
     sys.exit(1)
   return 0
@@ -398,11 +402,11 @@ def get_xmlurl_by_name (cursor, name):
   cursor.execute(query)
   for (xml) in cursor:
     if verbose:
-      print("{}".format(xml))
+      print(("{}".format(xml)))
     return xml[0]
   else:
     if verbose:
-      print ("No result from query %s" % query)
+      print(("No result from query %s" % query))
     return False
 
 
@@ -431,18 +435,20 @@ def url_fix(s, charset='utf-8'):
     :param charset: The target charset for the URL if the url was
                     given as unicode string.
     """
-    #print "url_fix", s
-    if isinstance(s, unicode):
-        s = s.encode(charset, 'ignore')
-    scheme, netloc, path, qs, anchor = urlparse.urlsplit(s)
-    path = urllib.quote(path, '/%')
-    qs = urllib.quote_plus(qs, ':&=')
-    return urlparse.urlunsplit((scheme, netloc, path, qs, anchor))
+    print ("TODO: url_fix", s)
+    # if isinstance(s, str):
+    #     s = s.encode(charset, 'ignore')
+    # scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(s)
+    # path = urllib.parse.quote(path, '/%')
+    # qs = urllib.parse.quote_plus(qs, ':&=')
+    # #return urllib.parse.urlunsplit((scheme, netloc, path, qs, anchor))
+    # return urllib.parse.urlunsplit((scheme, netloc, path, qs, anchor))
+    return s
 
 
 def urlopenread (url):
-  return urllib2.urlopen(url).read()
-
+  #return urllib.request.urlopen(url).read()
+  return requests.get(url).text
 
 if __name__ == "__main__":
   # Test if location is provided
