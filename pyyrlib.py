@@ -9,7 +9,7 @@ PyYrLib is a simple python library for using Yr.no’s weather data API.
 You are welcome to participate in this project!
 """
 
-__version__ = '20120316'
+__version__ = '20180929'
 __url__ = 'http://http://gitorious.org/altut-i-python/pyyrlib'
 __license__ = 'BSD License'
 __docformat__ = 'markdown'
@@ -18,12 +18,11 @@ import os, sys
 import urllib, urllib2, urlparse
 import xml.dom.minidom
 import traceback
-try:
-  import MySQLdb
-except ImportError:
-  pass
+#import MySQLdb
+import mysql.connector # sudo pip install mysql-connector
 import pyofc
 
+verbose = True
 
 def get_location_url(location=False, hourly = False):
   """ This function returns the yr.no url of the weather data at a specific 
@@ -31,7 +30,8 @@ def get_location_url(location=False, hourly = False):
   """
 
   if not location:
-    print "get_location_url called without location " + location
+    if verbose:
+      print "get_location_url called without location " + location
     return false
 
   filename = "/varsel.xml"
@@ -314,18 +314,22 @@ def returnWeatherData(location, hourly = False):
   """ Function that combines getting, parsing and interpreting data.
       Returns False on failure.
   """
+  locationurl = ''
+
   # Try to get location url
   try:
     locationurl = get_location_url(location, hourly)
-  except MySQLdb.OperationalError as e:
+  except mysql.connector.Error as e:
     print "Error in retreiving a location url (no database available): " + location + str(e)
     return False, ""
   except AttributeError as e:
-    return False, ""
+    return False, "%s" % e
   except:
      print "Error in retreiving a location url: " + location
 
   if not locationurl:
+    if verbose:
+      print("No locationurl")
     return False, ""
 
   # Try to download and parse data
@@ -356,6 +360,8 @@ def getAndPrint(location):
   weatherdata = returnWeatherData(location)
 
   if not weatherdata:
+    if verbose:
+      print("No weatherdata")
     return False
   
   # Try to print data
@@ -369,10 +375,13 @@ def getAndPrint(location):
 
 
 def get_db_cursor ():
-  conn=MySQLdb.connect(host = "localhost",
-                           user = "pyyrlib",
-                           passwd = "ifoo3aeshahN",
-                           db = "pyyrlib")
+  conn = mysql.connector.connect(user='pyyrlib', password='pyyrlib',
+                              host='10.223.68.17',
+                              database='pyyrlib')
+  # conn=MySQLdb.connect(host = "localhost",
+  #                          user = "pyyrlib",
+  #                          passwd = "ifoo3aeshahN",
+  #                          db = "pyyrlib")
   return conn, conn.cursor ()
 
 
@@ -383,12 +392,17 @@ def get_xmlurl_by_name (cursor, name):
     "UNION " +\
     "SELECT xml " +\
     "FROM verda " +\
-    "WHERE LOWER(xml) LIKE ('%" + name + "%') "
+    "WHERE LOWER(xml) LIKE ('%" + name + "%') " +\
+    "LIMIT 1"
 
-  if 0 < cursor.execute(query):
-    row = cursor.fetchone ()
-    return row[0]
+  cursor.execute(query)
+  for (xml) in cursor:
+    if verbose:
+      print("{}".format(xml))
+    return xml[0]
   else:
+    if verbose:
+      print ("No result from query %s" % query)
     return False
 
 
