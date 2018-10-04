@@ -428,29 +428,6 @@ def sanitize_string (str):
     return str
 
 
-def url_fix(s, charset='utf-8'):
-    """Sometimes you get an URL by a user that just isn't a real
-    URL because it contains unsafe characters like ' ' and so on.  This
-    function can fix some of the problems in a similar way browsers
-    handle data entered by the user:
-
-    >>> url_fix(u'http://de.wikipedia.org/wiki/Elf (Begriffsklärung)')
-    'http://de.wikipedia.org/wiki/Elf%20%28Begriffskl%C3%A4rung%29'
-
-    :param charset: The target charset for the URL if the url was
-                    given as unicode string.
-    """
-    print ("TODO: url_fix", s)
-    # if isinstance(s, str):
-    #     s = s.encode(charset, 'ignore')
-    # scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(s)
-    # path = urllib.parse.quote(path, '/%')
-    # qs = urllib.parse.quote_plus(qs, ':&=')
-    # #return urllib.parse.urlunsplit((scheme, netloc, path, qs, anchor))
-    # return urllib.parse.urlunsplit((scheme, netloc, path, qs, anchor))
-    return s
-
-
 def urlopenread (url):
     #return urllib.request.urlopen(url).read()
     r = requests.get(url.strip(), headers = {'User-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:62.0) Gecko/20100101 Firefox/62.0'} )
