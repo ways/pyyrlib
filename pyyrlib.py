@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 PyYrLib
@@ -10,13 +10,12 @@ You are welcome to participate in this project!
 """
 
 __version__ = '20180929'
-__url__ = 'http://http://gitorious.org/altut-i-python/pyyrlib'
+__url__ = 'https://gitlab.com/larsfp/pyyrlib'
 __license__ = 'BSD License'
 __docformat__ = 'markdown'
 
 import os, sys
 import requests
-#import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, urllib.parse
 import xml.dom.minidom
 import traceback
 import mysql.connector # sudo pip install mysql-connector
@@ -52,7 +51,10 @@ def download_and_parse(url, location):
     #print "download_and_parse",url
     # Download the xml data, cached
     ofc = pyofc.OfflineFileCache ('/tmp/pyyrlib-cache/', 1800, urlopenread,
-      url_fix(url), False)
+      url, False)
+    if not ofc:
+        return False
+
     response, fromcache = ofc.get(location)
 
 #  print " returned " \
@@ -317,6 +319,7 @@ def returnWeatherData(location, hourly = False):
         Returns False on failure.
     """
     locationurl = ''
+    weatherdata = None
 
     # Try to get location url
     try:
@@ -331,30 +334,32 @@ def returnWeatherData(location, hourly = False):
     except:
         print("returnWeatherData Error in retreiving a location url: " + location)
 
-    if not locationurl:
+    if not locationurl: # No hits
         if verbose:
             print("No locationurl")
         return False, ""
+    elif 1 < len(locationurl): # Multiple hits
+        return False, locationurl
+    else: # One hit
+        # Try to download and parse data
+        #try:
+        xmlobj = download_and_parse(locationurl[0][0], location)
+        #except Exception as e:
+        #  print("Error in downloading and parsing xml data: ")
+        #  print(e)
+    #    traceback.print_exc()
+        #return False, ""
 
-    # Try to download and parse data
-    #try:
-    xmlobj = download_and_parse(locationurl, location)
-    #except Exception as e:
-    #  print("Error in downloading and parsing xml data: ")
-    #  print(e)
-#    traceback.print_exc()
-    #return False, ""
+        # Try to interpret xml object
+        try:
+            weatherdata = interpret(xmlobj)
+        except:
+            print("Error in interpreting xml data:")
+            traceback.print_exc()
+            sys.exit(1)
 
-    # Try to interpret xml object
-    try:
-        weatherdata = interpret(xmlobj)
-    except:
-        print("Error in interpreting xml data:")
-        traceback.print_exc()
-        sys.exit(1)
-
-    # Return weather data
-    return weatherdata, locationurl
+        # Return weather data
+        return weatherdata, locationurl
 
 
 def getAndPrint(location):
@@ -390,35 +395,35 @@ def get_db_cursor ():
 
 
 def get_xmlurl_by_name (cursor, name):
-    query = "SELECT xml " +\
+    # query = "SELECT xml " +\
+    #   "FROM verda " +\
+    #   "WHERE placename LIKE('" + name + "%') " +\
+    #   "UNION " +\
+    #   "SELECT xml " +\
+    #   "FROM verda " +\
+    #   "WHERE LOWER(xml) LIKE ('%" + name + "%') " +\
+    #   "LIMIT 1"
+
+    query = "SELECT DISTINCT xml " +\
       "FROM verda " +\
-      "WHERE placename LIKE('" + name + "%') " +\
-      "UNION " +\
-      "SELECT xml " +\
-      "FROM verda " +\
-      "WHERE LOWER(xml) LIKE ('%" + name + "%') " +\
-      "LIMIT 1"
+      "WHERE LOWER(xml) LIKE ('%" + name + "%') "
 
     cursor.execute(query)
-    for (xml) in cursor:
-        if verbose:
-            print(("{}".format(xml)))
-        return xml[0]
-    else:
-        if verbose:
-            print(("No result from query %s" % query))
-        return False
+    result = cursor.fetchall()
+    return result
 
 
 def sanitize_string (str):
-    if len(str) > 10:
-        str = str[:10]
+    if len(str) > 30:
+        str = str[:30]
     str = str.strip()\
       .replace('\\','')\
       .replace(';','')\
       .replace('*','')\
       .replace('&','')\
       .replace("'",'')\
+      .replace(".",'')\
+      .replace(":",'')\
       .replace('=','')
     return str
 
@@ -448,13 +453,19 @@ def url_fix(s, charset='utf-8'):
 
 def urlopenread (url):
     #return urllib.request.urlopen(url).read()
-    return requests.get(url).text
-
-if __name__ == "__main__":
-    # Test if location is provided
-    if sys.argv[1] == []:
-        location = None
+    r = requests.get(url.strip(), headers = {'User-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:62.0) Gecko/20100101 Firefox/62.0'} )
+    if 200 == r.status_code:
+        return r.text
     else:
-        location = sys.argv[1]
-    # Run simple print function
-    sys.exit(getAndPrint(location))
+        if verbose:
+            print("urlopenread %s error opening url %s" % (url, r.status_code))
+        return False
+
+# if __name__ == "__main__":
+#     # Test if location is provided
+#     if sys.argv[1] == []:
+#         location = None
+#     else:
+#         location = sys.argv[1]
+#     # Run simple print function
+#     sys.exit(getAndPrint(location))
